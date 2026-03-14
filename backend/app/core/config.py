@@ -20,6 +20,7 @@ class Settings(BaseSettings):
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
+    # REDIS_URL: str = "redis://redis:6379/0"
 
     # # Neo4j (GraphRAG)
     # NEO4J_URI: str

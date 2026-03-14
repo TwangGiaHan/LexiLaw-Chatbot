@@ -4,7 +4,7 @@ from app.core.config import settings
 from app.services.embedding import embedding_service
 
 class QdrantLegalService:
-    async def hybrid_search(self, query_text: str, top_k: int = 15):
+    async def hybrid_search(self, query_text: str, top_k: int =settings.VECTOR_SEARCH_TOP_K):
         # Lấy Dense Vector
         dense_vector = await embedding_service.encode_query(query_text)
 

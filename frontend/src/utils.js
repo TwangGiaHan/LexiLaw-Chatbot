@@ -9,6 +9,9 @@ export async function* parseSSEStream(stream) {
   while (true) {
     const { done, value } = await sseReader.read();
     if (done) break;
-    yield value.data;
+    // Bỏ qua data rỗng để tránh lỗi
+    if (value.data && value.data.trim()) {
+      yield value.data;
+    }
   }
 }

@@ -15,9 +15,12 @@ from app.core.config import settings
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
-def get_chat_model(system_instruction: str):
+def get_chat_model(system_instruction: str = None):
     # Sử dụng tính năng native của Gemini để giữ vai trò ổn định
-    return genai.GenerativeModel(
-        model_name=settings.GEMINI_MODEL,
-        system_instruction=system_instruction
-    )
+    if system_instruction:
+        return genai.GenerativeModel(
+            model_name=settings.GEMINI_MODEL,
+            system_instruction=system_instruction
+        )
+    else:
+        return genai.GenerativeModel(model_name=settings.GEMINI_MODEL)
