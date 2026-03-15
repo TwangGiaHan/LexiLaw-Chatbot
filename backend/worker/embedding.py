@@ -180,5 +180,5 @@ if __name__ == "__main__":
     print("QDRANT_URL =", os.getenv("QDRANT_URL"))
     print("QDRANT_API_KEY (prefix) =", (os.getenv("QDRANT_API_KEY") or "")[:6])
     embedder = LegalEmbedder()
-    asyncio.run(embedder.run("laws_chunks_1_MH.jsonl"))
+    asyncio.run(embedder.run("laws_chunks.jsonl"))
     

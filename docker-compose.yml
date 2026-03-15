@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  # Frontend - Giao diện người dùng React/Vite
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - lawrag-net
+    depends_on:
+      - backend
+
+  # Backend - FastAPI Server xử lý logic
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    networks:
+      - lawrag-net
+    depends_on:
+      - redis
+
+  # Database - Redis lưu trữ lịch sử chat tạm thời
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - lawrag-net
+
+networks:
+  lawrag-net:
+    driver: bridge
+
+volumes:
+  redis_data:
