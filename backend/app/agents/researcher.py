@@ -1,19 +1,3 @@
-# from app.agents.tools import legal_tools
-
-# class ResearcherAgent:
-#     async def gather_all_evidence(self, query: str):
-#         # Chạy song song Qdrant và Neo4j (nếu có) để tối ưu tốc độ
-        
-#         # Qdrant + rerank
-#         vector_data = await legal_tools.search_knowledge_base(query)
-        
-#         # graph_data = await legal_tools.search_graph_references(query)
-        
-
-
-#         return vector_data # Trả về context để Answer Agent sử dụng
-
-
 from typing import List, Dict, Any
 from app.agents.tools import legal_tools
 from app.services.qdrant_service import qdrant_legal_service
@@ -30,19 +14,21 @@ class ResearcherAgent:
         4) Fusion scoring rồi hợp nhất thành list context (để cho Answer Agent)
         5) Lưu cache
         """
-        # 1) Check cache
         cached = await memory_service.get_cached_result(query)
         if cached:
             return cached
 
-        # 2) Qdrant + rerank
-        raw_hits = await qdrant_legal_service.hybrid_search(query, top_k=20)
-        hits = await reranker_service.rerank(query, raw_hits, top_k=10)
+        # Qdrant + rerank
+        raw_hits = await qdrant_legal_service.hybrid_search(query, top_k=10)
+        if not raw_hits: 
+            return []
+        hits = await reranker_service.rerank(query, raw_hits, top_k=5)
 
-        # 3) Graph expand dựa trên article_ids từ hits
-        graph_ctx = await legal_tools.search_graph_references(raw_hits, limit_spans=40)
+        # Graph expand dựa trên article_ids từ hits
+        # graph_ctx = await legal_tools.search_graph_references(raw_hits, limit_spans=40)
+        graph_ctx = {"owner_spans": [], "references": [], "semantics":{"concepts":[],"events":[],"actors":[],"penalties":[]}, "mention_spans":[]}  # Tạm disable Neo4j
 
-        # 4) Fusion: cho điểm graph-items
+        # Fusion: cho điểm graph-items
         def gscore(edge_type: str) -> float:
             return {
                 "REFERENCES": 1.3, "PENALIZES": 1.3, "HAS_PENALTY": 1.25,
@@ -50,7 +36,6 @@ class ResearcherAgent:
                 "DEFINES": 1.1, "INVOLVES": 1.0, "MENTIONS": 1.0, "BELONGS_TO": 1.0
             }.get(edge_type, 1.0)
 
-        # Base contexts from Qdrant
         base = []
         for h in hits:
             m = h.payload['metadata']

@@ -6,13 +6,12 @@ from typing import List, Dict, Any
 class LegalTools:
     async def search_knowledge_base(self, query: str):
         """Kết hợp Hybrid Search Qdrant và Re-ranking"""
-        # 1. Tìm kiếm Hybrid (RRF) - lấy 5 kết quả
-        initial_hits = await qdrant_legal_service.hybrid_search(query, top_k=5)
+        # tìm kiếm Hybrid (RRF)
+        initial_hits = await qdrant_legal_service.hybrid_search(query, top_k=10)
         
-        # 2. Re-ranking - lấy 3 kết quả tốt nhất
-        final_hits = await reranker_service.rerank(query, initial_hits, top_k=3)
+        # Re-ranking
+        final_hits = await reranker_service.rerank(query, initial_hits, top_k=5)
         
-        # 3. Format kết quả cho LLM dễ đọc
         formatted = []
         for h in final_hits:
             m = h.payload['metadata']

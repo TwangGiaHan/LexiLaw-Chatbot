@@ -5,27 +5,22 @@ from app.services.embedding import embedding_service
 
 class QdrantLegalService:
     def __init__(self):
-        # Kiểm tra và in loại Qdrant đang dùng
         if "qdrant.io" in settings.QDRANT_URL:
             print("Đang sử dụng Qdrant Cloud")
         else:
             print("Đang sử dụng Qdrant Docker/Local")
 
     async def hybrid_search(self, query_text: str, top_k: int =settings.VECTOR_SEARCH_TOP_K):
-        # Lấy Dense Vector
         dense_vector = await embedding_service.encode_query(query_text)
 
-        # Hybrid Query (RRF)
         res = await qdrant_client.query_points(
             collection_name=settings.COLLECTION_NAME,
             prefetch=[
-                # Sparse (BM25 Qdrant-side)
                 models.Prefetch(
                     query=models.Document(text=query_text, model="Qdrant/bm25"),
                     using="text-sparse",
                     limit=max(top_k * 3, 20),
                 ),
-                # Dense
                 models.Prefetch(
                     query=dense_vector,
                     using="dense",
@@ -37,7 +32,6 @@ class QdrantLegalService:
             with_payload=True,
         )
         
-        # points
         return getattr(res, "points", None) or getattr(res, "result", None) or []
 
 qdrant_legal_service = QdrantLegalService()

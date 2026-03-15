@@ -1,4 +1,3 @@
-# app/services/neo4j_service.py
 from typing import List, Dict, Any
 from app.core.neo4j import get_driver, get_db
 
@@ -118,13 +117,11 @@ class Neo4jService:
             md = h.payload.get("metadata", {})
             di = md.get("doc_info", {})
             hrc = md.get("hierarchy", {})
-            # doc_key giống lúc ingest graph: dùng doc_number nếu có, else doc_id
             doc_number = di.get("doc_number")
             doc_id = di.get("doc_id")
             doc_key = (doc_number or doc_id or "UNKNOWN").strip()
             article_no = str(hrc.get("article_no") or "")
             ids.append(f"{doc_key}_D{article_no}")
-        # unique & keep order
         seen = set(); out=[]
         for x in ids:
             if x not in seen:

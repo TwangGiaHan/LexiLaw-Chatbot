@@ -12,7 +12,6 @@ router = APIRouter()
 class ChatIn(BaseModel):
     message: str
 
-# Dependency để lấy Redis client
 async def get_rdb():
     rdb = get_redis()
     try:
@@ -33,23 +32,16 @@ async def chat(chat_id: str, chat_in: ChatIn):
     """Endpoint chính để chat, hỗ trợ Streaming SSE"""
     rdb = get_redis()
     
-    # Kiểm tra session
     if not await chat_exists(rdb, chat_id):
         await rdb.aclose()
         raise HTTPException(status_code=404, detail=f'Chat {chat_id} không tồn tại')
     
-    # Kiểm tra message không rỗng
     message = chat_in.message.strip()
     if not message:
         await rdb.aclose()
         raise HTTPException(status_code=400, detail="Message không được rỗng")
-    
-    # Khởi tạo Assistant với logic Search -> Rerank -> Gemini
-    # Chúng ta truyền Redis client vào để Assistant tự quản lý lịch sử
     assistant = LegalAssistant(chat_id=chat_id, rdb=rdb)
     
-    # Hàm run của Assistant sẽ trả về một SSEStream object
     sse_stream = assistant.run(message=message)
     
-    # Trả về stream cho Frontend, đóng kết nối Redis sau khi hoàn thành
     return EventSourceResponse(sse_stream, background=rdb.aclose)

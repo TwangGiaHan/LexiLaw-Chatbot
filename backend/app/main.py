@@ -6,7 +6,8 @@ from app.api import router
 from app.core.config import settings
 from app.db import get_redis
 
-# Quản lý vòng đời ứng dụng (Lifespan)
+import uvicorn
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     rdb = get_redis()
@@ -27,7 +28,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Cấu hình CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOW_ORIGINS if hasattr(settings, 'ALLOW_ORIGINS') else ["*"],
@@ -45,5 +45,4 @@ def health_check():
     return 'ok'
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
