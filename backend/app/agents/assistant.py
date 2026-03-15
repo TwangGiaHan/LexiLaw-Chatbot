@@ -38,11 +38,18 @@ class LegalAssistant:
             chat_session = model.start_chat(history=formatted_history)
 
             # 5. Stream kết quả
+            # full_response = ""
+            # async for chunk in await chat_session.send_message_async(message, stream=True):
+            #     if chunk.text:
+            #         await sse.send(chunk.text)
+            #         full_response += chunk.text
+
+            
             full_response = ""
-            async for chunk in await chat_session.send_message_async(message, stream=True):
-                if chunk.text:
-                    await sse.send(chunk.text)
-                    full_response += chunk.text
+            async for piece in model.generate_stream(message):
+                await sse.send(piece)
+                full_response += piece
+
 
             # 6. Lưu vào Redis
             await add_chat_messages(self.rdb, self.chat_id, [
