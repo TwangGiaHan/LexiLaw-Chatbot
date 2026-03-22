@@ -208,12 +208,11 @@ class Neo4jService:
         if not article_ids:
             return {"nodes": [], "edges": []}
 
-        # Query lấy Article và các mối quan hệ (References, Defines, v.v.)
+        # Query lấy Article và mạng lưới liên kết lân cận (Clause, Document, Concept, Penalty, vv.)
         query = """
         UNWIND $ids AS aid
-        MATCH (n:Article) WHERE n.article_id = aid
-        OPTIONAL MATCH (n)-[r]->(m)
-        WHERE type(r) IN ['REFERENCES', 'DEFINES', 'REGULATES', 'PENALIZES']
+        MATCH (n:Article {article_id: aid})
+        OPTIONAL MATCH (n)-[r]-(m)
         RETURN n, r, m
         """
         
@@ -259,10 +258,15 @@ class Neo4jService:
                             "properties": m_props
                         }
                     
+                    # Determine true edge direction
+                    is_n_source = (r.start_node.id == n.id)
+                    edge_source = n_id if is_n_source else m_id
+                    edge_target = m_id if is_n_source else n_id
+
                     edges.append({
-                        "source": n_id,
-                        "target": m_id,
-                        "label": r.type  # Use r.type instead of type(r).__name__
+                        "source": edge_source,
+                        "target": edge_target,
+                        "label": r.type
                     })
 
         result = {"nodes": list(nodes.values()), "edges": edges}
