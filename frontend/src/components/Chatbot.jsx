@@ -4,11 +4,14 @@ import api from '@/api';
 import { parseSSEStream } from '@/utils';
 import ChatMessages from '@/components/ChatMessages';
 import ChatInput from '@/components/ChatInput';
+import GraphVisualization from '@/components/GraphVisualization';
 
 function Chatbot() {
   const [chatId, setChatId] = useState(null);
   const [messages, setMessages] = useImmer([]);
   const [newMessage, setNewMessage] = useState('');
+  const [graphData, setGraphData] = useState(null);
+  const [showGraph, setShowGraph] = useState(false);
 
   const isLoading = messages.length && messages[messages.length - 1].loading;
 
@@ -39,6 +42,15 @@ function Chatbot() {
       setMessages(draft => {
         draft[draft.length - 1].loading = false;
       });
+
+      // Lấy dữ liệu graph visualization
+      try {
+        const graph = await api.getGraphVisualization(chatIdOrNew, trimmedMessage);
+        console.log('Graph data received:', graph);
+        setGraphData(graph);
+      } catch (err) {
+        console.error('Error fetching graph:', err);
+      }
     } catch (err) {
       console.log(err);
       setMessages(draft => {
@@ -61,6 +73,19 @@ function Chatbot() {
         messages={messages}
         isLoading={isLoading}
       />
+      {graphData && (
+        <div className="flex justify-center">
+          <button
+            onClick={() => setShowGraph(!showGraph)}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            {showGraph ? 'Ẩn đồ thị' : 'Hiển thị đồ thị pháp lý'}
+          </button>
+        </div>
+      )}
+      {showGraph && graphData && (
+        <GraphVisualization graphData={graphData} />
+      )}
       <ChatInput
         newMessage={newMessage}
         isLoading={isLoading}
