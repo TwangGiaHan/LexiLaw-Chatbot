@@ -134,7 +134,7 @@ const GraphVisualization = ({ graphData }) => {
       const target = String(edge.target || edge.to);
       const edgeId = edge.id ? String(edge.id) : `e${idx}`;
       const label = edge.label || edge.relationship || '';
-      
+
       if (g.hasNode(source) && g.hasNode(target) && !g.hasEdge(source, target)) {
         g.addEdgeWithKey(edgeId, source, target, {
           size: 2,
@@ -175,7 +175,7 @@ const GraphVisualization = ({ graphData }) => {
       <SigmaContainer graph={graph} settings={sigmaSettings} className="w-full h-full bg-slate-50/50">
         <ForceLayout />
         <GraphEvents setHoveredNode={setHoveredNode} />
-        
+
         <ControlsContainer position={"bottom-right"} className="p-3 !bottom-4 !right-4 z-10 flex flex-col gap-2">
           <ZoomControl className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg border border-slate-200 [&_button]:p-2 [&_button]:hover:bg-slate-100 transition-colors" />
           <FullScreenControl className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg border border-slate-200 [&_button]:p-2 [&_button]:hover:bg-slate-100 transition-colors" />
