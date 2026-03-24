@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Neo4j Legal KG Builder (Async + OpenAI SDK)
 

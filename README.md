@@ -2,6 +2,8 @@
 
 **LexiLaw** is an advanced RAG (Retrieval-Augmented Generation) system specifically designed to consult and resolve legal issues related to the Vietnam Labor Law.
 
+![LexiLaw Demo](./assets/demo.jpg)
+
 The system leverages a modern architecture with a high-speed React/Vite Frontend, smooth asynchronous FastAPI Backend, and the power of leading LLM models, delivering highly accurate, transparent answers fully based on current legal documents.
 
 ---
